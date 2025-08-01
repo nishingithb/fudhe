@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Useless Food Detector</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Import the elegant 'Gayathri' font -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gayathri:wght@400;700&display=swap');
+    .font-malayalam {
+      font-family: 'Gayathri', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-950 to-gray-800 text-white flex flex-col items-center p-4 min-h-screen">
+
+  <div class="container mx-auto max-w-2xl">
+    <h1 class="text-5xl font-extrabold text-center text-emerald-400 mb-6 mt-8 font-malayalam drop-shadow-lg">
+      ഫുദേ....
+    </h1>
+
+    <div class="flex justify-center">
+      <!-- Main App Section with Glassmorphism -->
+      <div class="bg-gray-800/30 backdrop-blur-lg p-8 rounded-3xl shadow-2xl border border-gray-700/50 w-full">
+        <div class="flex flex-col items-center">
+          
+          <!-- Camera and Photo View -->
+          <div id="camera-view" class="w-full max-w-md" style="display: none;">
+            <video id="video" autoplay playsinline class="w-full h-auto mb-6 rounded-2xl shadow-xl overflow-hidden border border-gray-600/50"></video>
+            <div class="flex gap-4 w-full justify-center px-4">
+              <button id="capture-photo-btn" class="flex-1 bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">
+                Capture Photo
+              </button>
+              <button id="close-camera-btn" class="flex-1 bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-red-700 transition duration-300 transform hover:scale-105">
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <!-- Captured Image and Placeholder View -->
+          <div id="photo-view" class="w-full max-w-md">
+            <div id="image-container" class="relative w-full h-auto mb-6 rounded-2xl shadow-xl overflow-hidden border border-gray-600/50" style="display: none;">
+              <img id="captured-image" alt="Captured food" class="w-full h-full object-cover">
+            </div>
+            <div id="placeholder" class="w-full h-64 flex items-center justify-center bg-gray-700/30 backdrop-blur-sm text-gray-500 rounded-2xl border border-dashed border-gray-600/50 mb-6">
+              <span class="text-center p-4">
+                <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.86-1.528A2 2 0 0110.457 2h3.085a2 2 0 011.664.89l.86 1.528A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Take a photo of your food
+              </span>
+            </div>
+            <button id="open-camera-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 transform hover:scale-105">
+              Take a Photo
+            </button>
+          </div>
+
+          <button id="analyze-btn" class="mt-6 w-full max-w-md bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:from-indigo-600 hover:to-purple-700 transition duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center transform hover:scale-105">
+            <span id="analyze-btn-text">Analyze Food</span>
+            <svg id="loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" style="display: none;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+
+          <div id="message-box" class="mt-6 p-4 w-full max-w-md text-center text-lg rounded-xl bg-gray-700/50 backdrop-blur-md border border-gray-600/50" style="display: none;">
+            <p id="message-text"></p>
+          </div>
+
+          <!-- Analysis Results Section -->
+          <div id="results-container" class="mt-8 w-full max-w-md rounded-3xl shadow-2xl border border-gray-700/50 overflow-hidden" style="display: none;">
+            <div id="results-header" class="p-6">
+              <h2 id="food-name" class="text-4xl font-bold flex items-center justify-center text-white text-center drop-shadow-lg"></h2>
+              <div id="doctor-approved" class="mt-2 text-center" style="display: none;">
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold text-white bg-emerald-500/30 backdrop-blur-sm border border-emerald-500/50">
+                  <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                  Doctor Approved
+                </span>
+              </div>
+            </div>
+            
+            <div class="p-6 bg-gray-800/30 backdrop-blur-sm border-b border-gray-700/50">
+              <h3 class="text-2xl font-bold flex items-center text-white mb-4 border-b border-gray-700/50 pb-2">
+                <span role="img" aria-label="emoji" class="mr-2">🥣</span>
+                Nutrition Facts (Per Serving)
+              </h3>
+              <div class="space-y-4 text-lg">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-400">Calories</span>
+                  <span id="calories" class="text-white font-semibold"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-400">Total Fat</span>
+                  <span id="totalFat" class="text-white font-semibold"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-400">Protein</span>
+                  <span id="protein" class="text-white font-semibold"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-400">Carbohydrates</span>
+                  <span id="carbohydrates" class="text-white font-semibold"></span>
+                </div>
+              </div>
+            </div>
+            <div class="p-6 bg-gray-800/30 backdrop-blur-sm border-b border-gray-700/50">
+              <h3 class="text-2xl font-bold flex items-center text-white mb-4 border-b border-gray-700/50 pb-2">
+                <span role="img" aria-label="emoji" class="mr-2">🌟</span>
+                Health Score
+              </h3>
+              <div id="health-score" class="text-5xl text-center font-bold text-yellow-400 mt-4 drop-shadow-lg"></div>
+            </div>
+            <div class="p-6 bg-yellow-950/30 backdrop-blur-sm border-t border-yellow-800/50 rounded-b-3xl">
+              <h3 class="text-2xl font-bold flex items-center text-white mb-2 pb-2">
+                <span role="img" aria-label="emoji" class="mr-2 text-yellow-400">💡</span>
+                <span class="text-yellow-400">Expert Tip:</span>
+              </h3>
+              <p id="expert-tip" class="text-yellow-300 text-md mt-2"></p>
+            </div>
+          </div>
+
+          <!-- A hidden canvas for capturing the photo -->
+          <canvas id="canvas" style="display: none;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get references to all the necessary DOM elements
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const capturedImage = document.getElementById('captured-image');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const analyzeBtnText = document.getElementById('analyze-btn-text');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const messageBox = document.getElementById('message-box');
+    const messageText = document.getElementById('message-text');
+    const openCameraBtn = document.getElementById('open-camera-btn');
+    const capturePhotoBtn = document.getElementById('capture-photo-btn');
+    const closeCameraBtn = document.getElementById('close-camera-btn');
+    const photoView = document.getElementById('photo-view');
+    const cameraView = document.getElementById('camera-view');
+    const placeholder = document.getElementById('placeholder');
+    const imageContainer = document.getElementById('image-container');
+    const resultsContainer = document.getElementById('results-container');
+    const resultsHeader = document.getElementById('results-header');
+    const doctorApproved = document.getElementById('doctor-approved');
+    const foodName = document.getElementById('food-name');
+    const calories = document.getElementById('calories');
+    const totalFat = document.getElementById('totalFat');
+    const protein = document.getElementById('protein');
+    const carbohydrates = document.getElementById('carbohydrates');
+    const healthScore = document.getElementById('health-score');
+    const expertTip = document.getElementById('expert-tip');
+    
+    let capturedImageBase64 = null;
+    let currentStream = null;
+
+    // Helper function to show a message to the user
+    function showMessage(text) {
+      messageText.innerText = text;
+      messageBox.style.display = 'block';
+    }
+
+    // Helper function to hide the message box
+    function hideMessage() {
+      messageBox.style.display = 'none';
+      messageText.innerText = '';
+    }
+
+    // Helper function to show the loading state on the button
+    function showLoading() {
+      analyzeBtn.disabled = true;
+      loadingSpinner.style.display = 'block';
+      analyzeBtnText.style.display = 'none';
+    }
+    
+    // Helper function to hide the loading state
+    function hideLoading() {
+      analyzeBtn.disabled = false;
+      loadingSpinner.style.display = 'none';
+      analyzeBtnText.style.display = 'block';
+    }
+    
+    // Helper function to render the analysis results
+    function renderResults(analysis) {
+      if (!analysis) {
+        resultsContainer.style.display = 'none';
+        return;
+      }
+      
+      foodName.innerHTML = `<span role="img" aria-label="emoji" class="mr-2 text-4xl">${analysis.isDoctorApproved ? '🌿' : '💀'}</span>${analysis.foodName}`;
+      
+      if (analysis.isDoctorApproved) {
+        resultsHeader.classList.remove('bg-gray-700/30');
+        resultsHeader.classList.add('bg-emerald-600/30');
+        doctorApproved.style.display = 'block';
+      } else {
+        resultsHeader.classList.remove('bg-emerald-600/30');
+        resultsHeader.classList.add('bg-gray-700/30');
+        doctorApproved.style.display = 'none';
+      }
+      
+      calories.innerText = analysis.calories;
+      totalFat.innerText = analysis.totalFat;
+      protein.innerText = analysis.protein;
+      carbohydrates.innerText = analysis.carbohydrates;
+      healthScore.innerText = analysis.healthScore;
+      expertTip.innerText = analysis.expertTip;
+      
+      resultsContainer.style.display = 'block';
+    }
+
+    // Function to start the camera stream
+    async function startCamera() {
+      hideMessage();
+      resultsContainer.style.display = 'none';
+      capturedImageBase64 = null;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        currentStream = stream;
+        video.srcObject = stream;
+        cameraView.style.display = 'block';
+        photoView.style.display = 'none';
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+        showMessage("Could not access camera. Please ensure you have granted camera permissions in your browser settings and that the site is running on a secure connection (HTTPS).");
+        cameraView.style.display = 'none';
+        photoView.style.display = 'block';
+      }
+    }
+
+    // Function to stop the camera stream
+    function stopCamera() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+      }
+    }
+
+    // Function to capture a photo from the video stream
+    function capturePhoto() {
+      if (video && canvas) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        capturedImageBase64 = canvas.toDataURL('image/jpeg');
+        capturedImage.src = capturedImageBase64;
+
+        // Stop camera and switch views
+        stopCamera();
+        cameraView.style.display = 'none';
+        photoView.style.display = 'block';
+        placeholder.style.display = 'none';
+        imageContainer.style.display = 'block';
+        
+        // Reset analysis state
+        resultsContainer.style.display = 'none';
+        hideMessage();
+      }
+    }
+    
+    // Function to analyze the image using the Gemini API
+    async function analyzeImage() {
+      if (!capturedImageBase64) {
+        showMessage("Please take a photo first before analyzing.");
+        return;
+      }
+
+      showLoading();
+      hideMessage();
+      resultsContainer.style.display = 'none';
+
+      const maxRetries = 3;
+      let delay = 1000; // 1 second
+
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          const base64ImageData = capturedImageBase64.split(',')[1];
+          const prompt = "Identify the food item in this image. Classify it strictly as either 'junk food' or 'healthy food'. Provide the response in a JSON object with the keys 'foodName' and 'classification'. For example, for an apple, the response would be { \"foodName\": \"apple\", \"classification\": \"healthy food\" }. For a slice of pizza, the response would be { \"foodName\": \"pizza\", \"classification\": \"junk food\" }.";
+          
+          const chatHistory = [{
+            role: "user",
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  mimeType: "image/jpeg",
+                  data: base64ImageData
+                }
+              }
+            ]
+          }];
+          
+          const payload = {
+            contents: chatHistory,
+            generationConfig: {
+              responseMimeType: "application/json",
+              responseSchema: {
+                "type": "OBJECT",
+                "properties": {
+                  "foodName": { "type": "STRING" },
+                  "classification": { "type": "STRING", "enum": ["junk food", "healthy food"] }
+                }
+              }
+            }
+          };
+
+          const apiKey = "";
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`API Error (Attempt ${i + 1}):`, response.status, response.statusText, errorText);
+
+            if (response.status === 401) {
+              showMessage("Authentication failed. Please check the API key configuration.");
+              hideLoading();
+              return;
+            }
+
+            await new Promise(resolve => setTimeout(resolve, delay));
+            delay *= 2;
+            if (i === maxRetries - 1) {
+              showMessage(`API Error: ${response.statusText}. Please try again.`);
+            }
+            continue;
+          }
+
+          const result = await response.json();
+          console.log('Gemini API raw response:', result);
+          
+          const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+          
+          if (jsonText) {
+            try {
+              const parsedJson = JSON.parse(jsonText);
+              const { foodName: foodNameResult, classification } = parsedJson;
+              if (foodNameResult && classification) {
+                let uselessAnalysis;
+                if (classification === 'junk food') {
+                  uselessAnalysis = {
+                    foodName: foodNameResult,
+                    calories: "121",
+                    totalFat: "3g",
+                    protein: "55g",
+                    carbohydrates: "45g",
+                    healthScore: "9/10",
+                    expertTip: "This is a fantastic source of protein and essential fats. A perfect diet food!",
+                    isDoctorApproved: true,
+                  };
+                } else if (classification === 'healthy food') {
+                  uselessAnalysis = {
+                    foodName: foodNameResult,
+                    calories: "1191",
+                    totalFat: "54g",
+                    protein: "1g",
+                    carbohydrates: "139g",
+                    healthScore: "1/10",
+                    expertTip: "Warning: This might cause instant weight gain!",
+                    isDoctorApproved: false,
+                  };
+                } else {
+                    uselessAnalysis = {
+                      foodName: foodNameResult || "Food Detected",
+                      calories: "N/A",
+                      totalFat: "N/A",
+                      protein: "N/A",
+                      carbohydrates: "N/A",
+                      healthScore: "N/A",
+                      expertTip: "The AI could not classify this food as either 'junk food' or 'healthy food'. Please try again with a clearer image.",
+                      isDoctorApproved: false,
+                  };
+                }
+                renderResults(uselessAnalysis);
+                hideMessage();
+              } else {
+                renderResults(null);
+                showMessage("No food was detected. Please try again.");
+              }
+            } catch (parseError) {
+              console.error("Error parsing AI response JSON:", parseError);
+              showMessage(`The AI response was incomplete or malformed. Raw response was: ${jsonText}. Please try again.`);
+              renderResults(null);
+            }
+          } else {
+            showMessage("Could not get a valid response from the AI. Please try again.");
+            renderResults(null);
+          }
+          hideLoading();
+          return;
+        } catch (error) {
+          console.error('Error analyzing image:', error);
+          if (i === maxRetries - 1) {
+            showMessage("An error occurred during analysis. Please try again.");
+            renderResults(null);
+            hideLoading();
+          } else {
+            await new Promise(resolve => setTimeout(resolve, delay));
+            delay *= 2;
+          }
+        }
+      }
+      hideLoading();
+    }
+
+    // Event listeners for the buttons
+    openCameraBtn.addEventListener('click', startCamera);
+    closeCameraBtn.addEventListener('click', () => {
+      stopCamera();
+      cameraView.style.display = 'none';
+      photoView.style.display = 'block';
+      placeholder.style.display = 'block';
+      imageContainer.style.display = 'none';
+      capturedImageBase64 = null;
+    });
+    capturePhotoBtn.addEventListener('click', capturePhoto);
+    analyzeBtn.addEventListener('click', analyzeImage);
+  </script>
+
+</body>
+</html>
