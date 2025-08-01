@@ -273,6 +273,15 @@
       hideMessage();
       resultsContainer.style.display = 'none';
 
+      const apiKey = "AIzaSyCArAfdtAZ6NrlFuaIqXYnjUHkWCGwRjMw";
+
+      // Check if the API key has been set
+      if (apiKey === "YOUR_API_KEY_HERE" || apiKey === "") {
+        showMessage("Please set your Gemini API key in the script to enable analysis. You can get one for free from Google AI Studio.");
+        hideLoading();
+        return;
+      }
+
       const maxRetries = 3;
       let delay = 1000; // 1 second
 
@@ -308,7 +317,6 @@
             }
           };
 
-          const apiKey = "";
           const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
           const response = await fetch(apiUrl, {
