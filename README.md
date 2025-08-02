@@ -24,20 +24,19 @@ the world’s first AI-powered* food analyzer that does absolutely nothing right
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- Html,css,js
+- flask
+- Google Fonts - Gayathri,Tailwind css,gemini API
+- Canvas API,Fetch API,Browser Console
 
 For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+- A device with a camera (phone, tablet, or webcam-enabled laptop/PC)
+- An internet-enabled browser (Chrome, Firefox, Safari, Edge)
 
 ### Implementation
 For Software:
 # Installation
-[commands]
+No installation needed!
 
 # Run
 [commands]
