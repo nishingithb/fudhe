@@ -36,6 +36,9 @@
               <button id="close-camera-btn" class="flex-1 bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-red-700 transition duration-300 transform hover:scale-105">
                 Cancel
               </button>
+              <button id="toggle-camera-btn" class="flex-1 bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105">
+                Switch Camera
+              </button>
             </div>
           </div>
 
@@ -139,6 +142,7 @@
     const openCameraBtn = document.getElementById('open-camera-btn');
     const capturePhotoBtn = document.getElementById('capture-photo-btn');
     const closeCameraBtn = document.getElementById('close-camera-btn');
+    const toggleCameraBtn = document.getElementById('toggle-camera-btn'); // New button
     const photoView = document.getElementById('photo-view');
     const cameraView = document.getElementById('camera-view');
     const placeholder = document.getElementById('placeholder');
@@ -156,6 +160,7 @@
     
     let capturedImageBase64 = null;
     let currentStream = null;
+    let isFrontCamera = true; // State variable to track the active camera
 
     // Helper function to show a message to the user
     function showMessage(text) {
@@ -212,13 +217,13 @@
       resultsContainer.style.display = 'block';
     }
 
-    // Function to start the camera stream
-    async function startCamera() {
+    // Function to start the camera stream with a specific facing mode
+    async function startCamera(facingMode) {
       hideMessage();
       resultsContainer.style.display = 'none';
       capturedImageBase64 = null;
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
         currentStream = stream;
         video.srcObject = stream;
         cameraView.style.display = 'block';
@@ -420,8 +425,16 @@
       hideLoading();
     }
 
+    // Function to toggle between front and back cameras
+    function toggleCamera() {
+      stopCamera();
+      isFrontCamera = !isFrontCamera;
+      const facingMode = isFrontCamera ? 'user' : 'environment';
+      startCamera(facingMode);
+    }
+
     // Event listeners for the buttons
-    openCameraBtn.addEventListener('click', startCamera);
+    openCameraBtn.addEventListener('click', () => startCamera('user'));
     closeCameraBtn.addEventListener('click', () => {
       stopCamera();
       cameraView.style.display = 'none';
@@ -429,8 +442,10 @@
       placeholder.style.display = 'block';
       imageContainer.style.display = 'none';
       capturedImageBase64 = null;
+      isFrontCamera = true; // Reset to front camera when closing
     });
     capturePhotoBtn.addEventListener('click', capturePhoto);
+    toggleCameraBtn.addEventListener('click', toggleCamera); // New event listener for the toggle button
     analyzeBtn.addEventListener('click', analyzeImage);
   </script>
 
