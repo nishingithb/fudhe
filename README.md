@@ -39,7 +39,11 @@ For Software:
 No installation needed!
 
 # Run
-[commands]
+ Open in Browser (Recommended)
+Just visit:
+🔗 https://nishingithb.github.io/fudhe/
+
+No setup, no installation — works instantly
 
 ### Project Documentation
 For Software:
