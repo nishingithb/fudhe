@@ -10,7 +10,7 @@
 
 ### Team Members
 - Member 1: Muhammed Shasin KA
-- Member 2: [Name] - Nishin GS
+- Member 2: Nishin GS
 
 ### Project Description
 FUDHE is a humorous and deliberately inaccurate web application that pretends to be an AI-powered food analyzer. Users can snap a photo of their food, and the app randomly detects what it is — whether it's a burger, broccoli, or cake — then provides completely nonsense nutrition facts that are the exact opposite of reality.
